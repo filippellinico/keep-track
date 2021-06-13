@@ -1,0 +1,47 @@
+/* Bookshelf form */
+.book-list-wrapper {
+    padding: 16px;
+    margin: 64px auto 0;
+    max-width: 768px;
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, .1);
+}
+
+.book-list-form {
+    margin-bottom: 32px;
+}
+
+.form-row {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.form-row + .form-row {
+    margin-top: 18px;
+}
+
+.form-group{
+    margin-right: 10px;
+}
+
+.btn.btn-primary{
+    margin-top: 10px;
+}
+.btn-remove,
+.btn-reset {
+    padding: 0;
+    font-size: 12px;
+    font-style: italic;
+    color: hsl(6, 63%, 46%);
+    background-color: transparent;
+}
+
+.btn-remove:hover,
+.btn-reset:hover {
+    color: hsl(6, 63%, 26%);
+}
+
+.btn-reset {
+    margin: 21px auto 0;
+}
