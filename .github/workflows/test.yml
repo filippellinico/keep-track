@@ -1,0 +1,25 @@
+name: 'tests'
+on: # rebuild any PRs and main branch changes
+  pull_request:
+    types: [opened, synchronize]
+  push:
+    branches:
+      - main
+
+jobs:
+  tests-frontend: # make sure tests are green
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          npm install
+      - run: |
+          npm test
+  tests-server: # make sure tests are green
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          npm install
+      - run: |
+          npm run test-server        
