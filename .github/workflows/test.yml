@@ -20,6 +20,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: |
-          npm install
+          npm install      
+      - run: |
+          export NODE_ENV=test
       - run: |
           npm run test-server        
