@@ -1,7 +1,7 @@
 const request = require('supertest');
 const express = require('express');
 const bodyParser = require('body-parser');
-const router = require("./routes/books-route");
+const router = require("../routes/books-route");
 const sqlite3 = require('sqlite3').verbose();
 const assert = require('assert');
 const db = new sqlite3.Database(':memory:');
