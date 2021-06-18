@@ -47,7 +47,7 @@
     "build-front": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "test-server": "mocha server/tests/*.test.js"
+    "test-server": "mocha server/tests/*.test.js --exit"
   },
   "eslintConfig": {
     "extends": [
