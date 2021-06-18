@@ -1,14 +1,22 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import "./styles/paper-dashboard.css";
+import "./styles/demo.css";
+import "perfect-scrollbar/css/perfect-scrollbar.css";
+import AdminLayout from "./layouts/Admin";
 
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+    <BrowserRouter>
+        <Switch>
+            <Route path="/admin" render={(props) => <AdminLayout {...props} />} />
+            <Redirect to="/admin/dashboard" />
+        </Switch>
+    </BrowserRouter>,
   document.getElementById('root')
 );
 
