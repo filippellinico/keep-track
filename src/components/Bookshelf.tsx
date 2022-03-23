@@ -36,7 +36,7 @@ export const Bookshelf = () => {
     const fetchBooks = async () => {
         // Send GET request to 'books/all' endpoint
         axios
-            .get('http://localhost:4001/books/all')
+            .get('http://localhost:4001/api/v1/books')
             .then(response => {
                 // Update the books state
                 setBooks(response.data)
@@ -52,7 +52,7 @@ export const Bookshelf = () => {
         // Send POST request to 'books/create' endpoint
         const currentTitle = form.title;
         axios
-            .post('http://localhost:4001/books/create', {
+            .post('http://localhost:4001/api/v1/books', {
                 ...form
             })
             .then(res => {
@@ -120,7 +120,7 @@ export const Bookshelf = () => {
     const handleBookRemove = (id: number, title: string) => {
         // Send PUT request to 'books/delete' endpoint
         axios
-            .put('http://localhost:4001/books/delete', { id: id })
+            .delete(`http://localhost:4001/api/v1/books/${id}`)
             .then(() => {
                 console.log(`Book ${title} removed.`)
 
@@ -134,7 +134,7 @@ export const Bookshelf = () => {
     // Reset book list (remove all books)
     const handleListReset = () => {
         // Send PUT request to 'books/reset' endpoint
-        axios.put('http://localhost:4001/books/reset')
+        axios.delete('http://localhost:4001/api/v1/books')
             .then(() => {
                 // Fetch all books to refresh
                 // the books on the bookshelf list
@@ -196,7 +196,7 @@ export const Bookshelf = () => {
                                 </Form.Control.Feedback>
                             </InputGroup>
                         </Form.Group>
-                        <Form.Group as={Col} md="4" controlId="formGridPubDate">
+                        <Form.Group as={Col} md="4" controlId="formGridRating">
                             <Form.Label>Rating</Form.Label>
                             <InputGroup hasValidation>
                                 <Form.Control

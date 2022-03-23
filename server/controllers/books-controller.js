@@ -19,17 +19,21 @@ exports.booksAll = async (req, res) => {
 
 // Create new book
 exports.booksCreate = async (req, res) => {
+    const data = {
+        ...req.body
+    };
+    const table = req.baseUrl.replace("/api/v1/", "");
     // Add new book to database
-    knex('books')
-        .insert({ // insert new record, a book
-            'author': req.body.author,
-            'title': req.body.title,
-            'pubDate': req.body.pubDate,
-            'rating': req.body.rating
-        })
-        .then(() => {
+    knex(table)
+        .insert(data)
+        .returning('id')
+        .then(([id]) => {
             // Send a success message in response
-            res.json({ message: `Book \'${req.body.title}\' by ${req.body.author} created.` })
+            res.status(201)
+                .json({
+                    id: id,
+                    ...data
+                })
         })
         .catch(err => {
             // Send a error message in response
@@ -41,15 +45,15 @@ exports.booksCreate = async (req, res) => {
 exports.booksDelete = async (req, res) => {
     // Find specific book in the database and remove it
     knex('books')
-        .where('id', req.body.id) // find correct record based on id
+        .where('id', req.params.id) // find correct record based on id
         .del() // delete the record
         .then(() => {
             // Send a success message in response
-            res.json({ message: `Book ${req.body.id} deleted.` })
+            res.json({ message: `Book ${req.params.id} deleted.` })
         })
         .catch(err => {
             // Send a error message in response
-            res.json({ message: `There was an error deleting ${req.body.id} book: ${err}` })
+            res.json({ message: `There was an error deleting ${req.params.id} book: ${err}` })
         })
 }
 

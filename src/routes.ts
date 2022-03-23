@@ -22,6 +22,7 @@ import TableList from "./views/Tables";
 import * as React from "react";
 import {RouteComponentProps} from "react-router";
 import BookshelfView from "./views/BookshelfView";
+import ReceiptView from "./views/ReceiptView";
 
 export interface RouteProps{
     path: string,
@@ -37,6 +38,13 @@ const routes: RouteProps[] = [
         name: "Dashboard",
         icon: "nc-icon nc-bank",
         component: Dashboard,
+        layout: "/admin",
+    },
+    {
+        path: "/receipts",
+        name: "Receipts",
+        icon: "nc-icon nc-spaceship",
+        component: ReceiptView,
         layout: "/admin",
     },
     {

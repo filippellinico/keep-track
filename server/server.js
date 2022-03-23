@@ -6,7 +6,8 @@ const cors = require('cors')
 const helmet = require('helmet')
 
 // Import routes
-const booksRouter = require('./routes/books-route')
+const router = require('./routes/generic-route')
+const receiptRouter = require('./routes/receipt-route')
 
 // Set default port for express app
 const PORT = process.env.PORT || 4001
@@ -23,18 +24,12 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 // Implement books route
-app.use('/books', booksRouter)
-
-// Implement 500 error route
-app.use(function (err, req, res, next) {
-    console.error(err.stack)
-    res.status(500).send('Something is broken.')
-})
-
-// Implement 404 error route
-app.use(function (req, res, next) {
-    res.status(404).send('Sorry we could not find that.')
-})
+app.use(express.static('build'))
+app.use('/api/v1/books', router)
+app.use('/api/v1/articles', router)
+app.use('/api/v1/shops', router)
+app.use('/api/v1/receipts', receiptRouter)
+app.use('/api/v1/weight_types', router)
 
 // Start express app
 app.listen(PORT, function() {
