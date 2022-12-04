@@ -2,7 +2,7 @@
 const path = require('path')
 
 // Get the location of database.sqlite file
-const dbPath = path.resolve(__dirname, 'keep-track.db')
+const dbPath = path.resolve(process.cwd(), 'keep-track.db')
 let connection = {
     filename: dbPath,
 };
@@ -130,6 +130,7 @@ knex.schema.hasTable('articles_by_receipts').then(function(exists) {
             table.integer('article_id');
             table.integer('receipt_id');
             table.decimal('price');
+            table.decimal('unitPrice');
             table.integer('quantity');
             table.integer('weight');
             table.integer('weight_type');

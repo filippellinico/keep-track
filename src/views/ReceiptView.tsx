@@ -59,11 +59,13 @@ function ReceiptView() {
             .catch(error => console.error(`Error list: ${error}`))
     }
 
-    const addShop = (shop: ItemWithName) => {
-        setShops([
-            ...shops,
-            shop
-        ])
+    const addShop = (currentShop: ItemWithName) => {
+        if(shops.filter(shop => shop.name == currentShop.name).length < 1){
+            setShops([
+                ...shops,
+                currentShop
+            ])
+        }
     }
 
     const handleCreate = () => {
@@ -78,15 +80,46 @@ function ReceiptView() {
     const handleSave = (receiptRow: ReceiptRow) => {
         setEditMode(false);
         setReceiptSelected(null);
-        setReceipts([
-            receiptRow,
-            ...receipts
-        ])
+        let receiptsRefreshed: ReceiptRow[] = []
+        const sameReceipts = receipts.filter(receipt => receipt.id == receiptRow.id)
+        console.log(`receiptRow id [${receiptRow.id}]`)
+        console.log(`sameReceipts length [${sameReceipts.length}]`)
+        if(sameReceipts.length < 1){
+            console.log("add new receipt")
+            receiptsRefreshed = [
+                receiptRow,
+                ...receipts
+            ]
+        }
+        else{
+            console.log("update receipt")
+            receiptsRefreshed = receipts.map(receipt => {
+                if(receipt.id === receiptRow.id){
+                    return receiptRow
+                }
+                return receipt
+            })
+        }
+        setReceipts(receiptsRefreshed)
     }
 
     const handleEdit = (id: number) => {
         setEditMode(true);
         setReceiptSelected(id);
+    }
+
+    const handleRemove = (id: number) => {
+        axios.delete(`http://localhost:4001/api/v1/receipts/${id}`)
+        const receiptsAfterDeletion = [
+            ...receipts
+        ]
+        for (let i = 0; i < receipts.length; i++) {
+            const receipt: ReceiptRow = receipts[i]
+            if(receipt.id === id){
+                receiptsAfterDeletion.splice(i, 1)
+            }
+        }
+        setReceipts(receiptsAfterDeletion)
     }
 
     return (
@@ -126,7 +159,7 @@ function ReceiptView() {
                                         loading={loading}
                                         handleCreate={handleCreate}
                                         handleEdit={handleEdit}
-                                        handleRemove={()=>{}}
+                                        handleRemove={handleRemove}
                                     />
                                 </CardBody>
                             </Card>

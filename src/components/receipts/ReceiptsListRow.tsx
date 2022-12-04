@@ -38,8 +38,13 @@ export const ReceiptsListRow = (props: ReceiptListRow) => (
             <NumberFormat
                 value={props.receiptRow.sum}
                 displayType={'text'}
-                thousandSeparator={true}
-                prefix={'€'}
+                isNumericString
+                allowNegative={false}
+                decimalSeparator={","}
+                thousandSeparator={"."}
+                decimalScale={2}
+                fixedDecimalScale={true}
+                suffix={' €'}
             />
         </td>
 

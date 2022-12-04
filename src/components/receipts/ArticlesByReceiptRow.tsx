@@ -8,13 +8,15 @@ export interface ArticlesByReceiptRow{
     id?: number
     article_id?: string,
     receipt_id?: number,
-    price?: number,
-    quantity?: number,
+    price: number,
+    unitPrice: number,
+    quantity: number,
     weight?: number,
     weight_type?: number
     articleName?: string
     weightTypeName?: string
-    edit:boolean
+    edit: boolean
+    invalidArticle: boolean
 }
 
 interface ArticlesByReceiptRowProps {
@@ -26,21 +28,45 @@ interface ArticlesByReceiptRowProps {
 
 export const ArticlesByReceiptRow = (props: ArticlesByReceiptRowProps) => (
     <tr>
-        <td>
-            {props.articlesByReceiptRow.articleName}
+        <td style={{ width: '250px' }}>
+            <span className={'cellText'}>{props.articlesByReceiptRow.articleName}</span>
         </td>
-        <td>
-            {props.articlesByReceiptRow.quantity}
+        <td style={{ width: '215px' }}>
+            <span style={{ paddingRight: '23px' }} className={'cellText'}>
+                {props.articlesByReceiptRow.weight && props.articlesByReceiptRow.weight > 0 ? (
+                    <span>{props.articlesByReceiptRow.weight} {props.articlesByReceiptRow.weightTypeName}</span>
+                ) : ""}
+            </span>
         </td>
-        <td>
-            `{props.articlesByReceiptRow.weight} {props.articlesByReceiptRow.weightTypeName}`
+        <td style={{ width: '85px', textAlign: 'right' }}>
+            <span className={'cellText'}>{props.articlesByReceiptRow.quantity} X </span>
         </td>
-        <td>
+        <td style={{ width: '132px' }}>
+            <NumberFormat
+                value={props.articlesByReceiptRow.unitPrice}
+                displayType={'text'}
+                isNumericString
+                allowNegative={false}
+                decimalSeparator={","}
+                thousandSeparator={"."}
+                decimalScale={2}
+                fixedDecimalScale={true}
+                suffix={' €'}
+                className={'cellText'}
+            />
+        </td>
+        <td style={{ width: '132px', textAlign: 'right', paddingRight: '12px' }}>
             <NumberFormat
                 value={props.articlesByReceiptRow.price}
                 displayType={'text'}
-                thousandSeparator={true}
-                prefix={'€'}
+                isNumericString
+                allowNegative={false}
+                decimalSeparator={","}
+                thousandSeparator={"."}
+                decimalScale={2}
+                fixedDecimalScale={true}
+                suffix={' €'}
+                className={'cellText'}
             />
         </td>
         <td>

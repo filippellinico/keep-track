@@ -8,6 +8,7 @@ const helmet = require('helmet')
 // Import routes
 const router = require('./routes/generic-route')
 const receiptRouter = require('./routes/receipt-route')
+const statisticsRouter = require('./routes/statistics-route')
 
 // Set default port for express app
 const PORT = process.env.PORT || 4001
@@ -30,6 +31,7 @@ app.use('/api/v1/articles', router)
 app.use('/api/v1/shops', router)
 app.use('/api/v1/receipts', receiptRouter)
 app.use('/api/v1/weight_types', router)
+app.use('/api/v1/statistics', statisticsRouter)
 
 // Start express app
 app.listen(PORT, function() {

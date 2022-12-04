@@ -32,7 +32,7 @@ router.put('/:id', genericController.update)
 // In server.js, articles route is specified as '/articles'
 // this means that '/:id' translates to '/articles/:id'
 // where :id is a path param
-router.delete('/:id', genericController.delete)
+router.delete('/:id', articlesByReceiptController.deleteReceipt)
 
 // Add route for GET request to retrieve all articles
 // In server.js, articles route is specified as '/articles'
@@ -48,19 +48,19 @@ router.post('/:receipt_id/articles', articlesByReceiptController.create)
 // In server.js, articles route is specified as '/articles'
 // this means that '/:id' translates to '/articles/:id'
 // where :id is a path param
-router.get('/:receipt_id/articles/:article_id', articlesByReceiptController.get)
+router.get('/:receipt_id/articles/:article_receipt_id', articlesByReceiptController.get)
 
 // Add route for PUT request to retrieve all articles
 // In server.js, articles route is specified as '/articles'
 // this means that '/:id' translates to '/articles/:id'
 // where :id is a path param
-router.put('/:receipt_id/articles/:article_id', articlesByReceiptController.update)
+router.put('/:receipt_id/articles/:article_receipt_id', articlesByReceiptController.update)
 
 // Add route for PUT request to delete specific article
 // In server.js, articles route is specified as '/articles'
 // this means that '/:id' translates to '/articles/:id'
 // where :id is a path param
-router.delete('/:receipt_id/articles/:article_id', articlesByReceiptController.delete)
+router.delete('/:receipt_id/articles/:article_receipt_id', articlesByReceiptController.delete)
 
 // Export router
 module.exports = router

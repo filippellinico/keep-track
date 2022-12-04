@@ -46,3 +46,33 @@
 .btn-reset {
     margin: 21px auto 0;
 }*/
+
+.smallInput{
+    width: 75px !important;
+}
+.articleName{
+    width: 250px !important;
+}
+.price{
+    width: 120px !important;
+    text-align: right;
+}
+.totalPrice{
+    width: 115px !important;
+    margin-left: 560px;
+    text-align: right;
+}
+span.cellText{
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+}
+form p, div.card-body form table.table{
+    margin-bottom: 5px;
+}
+#articlesTable.table > thead > tr > th, #articlesTable.table > tbody > tr > th, #articlesTable.table > tfoot > tr > th, #articlesTable.table > thead > tr > td, #articlesTable.table > tbody > tr > td, #articlesTable.table > tfoot > tr > td
+{
+    padding: 5px 0px;
+}
+#articlesTable thead, #articlesTable tbody, #articlesTable tfoot, #articlesTable tr, #articlesTable td, #articlesTable th{
+    border-style: hidden;
+}

@@ -45,6 +45,7 @@ interface ArticleOfReceipt {
     article_id: number,
     receipt_id: number,
     price: number,
+    unitPrice: number,
     quantity: number,
     weight: number,
     weight_type: number
@@ -60,18 +61,40 @@ export const ReceiptForm = (props: ReceiptForm) => {
     const [articles, setArticles] = useState<ItemWithName[]>([]);
     const [weightTypes, setWeightTypes] = useState<ItemWithName[]>([]);
     const [sum, setSum] = useState<number>(0);
+    const [invalidShop, setInvalidShop] = useState<boolean>(false);
     const [receiptSelected, setReceiptSelected] = useState<number | null>(null);
 
     const [articlesByReceipt, setArticlesByReceipt] = useState([] as ArticleOfReceipt[])
     const [articlesByReceiptRows, setArticlesByReceiptRows] = useState([] as (ArticlesByReceiptRow)[])
 
     useEffect(() => {
+        fetchResources()
         if (props.receiptSelected !== receiptSelected){
             fetchItem()
         }
+        else {
+            setLoading(false)
+        }
     }, [props.receiptSelected])
 
+    const fetchResources = async ()  => {
+        const articlesResponse = await axios.get(`http://localhost:4001/api/v1/articles`)
+        setArticles(articlesResponse.data)
+        const weightTypesResponse = await axios.get(`http://localhost:4001/api/v1/weight_types`)
+        setWeightTypes(weightTypesResponse.data)
+    }
+
     const fetchItem = async () => {
+        setReceiptSelected(props.receiptSelected)
+        
+        const articlesResponse = await axios.get(`http://localhost:4001/api/v1/articles`)
+        setArticles(articlesResponse.data)
+        const weightTypesResponse = await axios.get(`http://localhost:4001/api/v1/weight_types`)
+        setWeightTypes(weightTypesResponse.data)
+        const articlesById: ItemById = arrayToObject(articlesResponse.data, "id")
+        const weightTypesById: ItemById = arrayToObject(weightTypesResponse.data, "id")
+        
+        console.log("fetch receipt")
         // Send GET request to '/receipts' endpoint
         const receiptsResponse = await axios.get(`http://localhost:4001/api/v1/receipts/${props.receiptSelected}`)
         // Update the receipts state
@@ -80,28 +103,30 @@ export const ReceiptForm = (props: ReceiptForm) => {
             date: new Date(receiptsResponse.data[0].date)
         };
         setDate(receipt.date)
-        setSelectedShops([])
+        const shopsById: ItemById = arrayToObject(props.shops as[], "id")
+        console.log(`selected shop [${shopsById[receipt.shop_id].name}]`)
+        setSelectedShops([{
+            id: receipt.shop_id.toString(),
+            name: shopsById[receipt.shop_id]? shopsById[receipt.shop_id].name : "Unknown"
+        }])
         setSum(receipt.sum)
 
-        setReceiptSelected(props.receiptSelected)
-        const articlesResponse = await axios.get(`http://localhost:4001/api/v1/articles`)
-        setArticles(articlesResponse.data)
-        const articlesById: ItemById = arrayToObject(articlesResponse.data, "id")
-        const weightTypesResponse = await axios.get(`http://localhost:4001/api/v1/weight_types`)
-        setWeightTypes(weightTypesResponse.data)
-        const weightTypesById: ItemById = arrayToObject(weightTypesResponse.data, "id")
         const articlesByReceiptResponse = await axios.get(`http://localhost:4001/api/v1/receipts/${props.receiptSelected}/articles`)
         setArticlesByReceipt(articlesByReceiptResponse.data)
 
         const articlesByReceiptRowList: ArticlesByReceiptRow[] = articlesByReceiptResponse.data.map((articleOfReceipt:ArticleOfReceipt) => {
+            const weightTypeItem = weightTypesById[articleOfReceipt.weight_type]
             return {
                 ...articleOfReceipt,
-                articleName: articlesById[articleOfReceipt.article_id.toString()],
-                weightTypeName: weightTypesById[articleOfReceipt.weight_type.toString()],
-                edit:false
+                articleName: articlesById[articleOfReceipt.article_id].name,
+                weightTypeName: weightTypeItem ? weightTypeItem.name : '',
+                edit: false,
+                invalidArticle: false,
+                unitPrice: articleOfReceipt.unitPrice ? articleOfReceipt.unitPrice : 0
             }
         })
         setArticlesByReceiptRows(articlesByReceiptRowList)
+        
         setLoading(false)
     }
 
@@ -138,14 +163,14 @@ export const ReceiptForm = (props: ReceiptForm) => {
         axios
             .put(`http://localhost:4001/api/v1/receipts/${props.receiptSelected}`, data)
             .then(res => {
-                console.log(res.data)
-                saveArticles(res.data.id)
+                console.log(props.receiptSelected)
+                saveArticles(props.receiptSelected!)
                     .then(() => {
                         props.handleSave({
                             date: date?date:new Date(),
                             sum: sum,
                             shop: selectedShops[0].name,
-                            id: res.data.id
+                            id: props.receiptSelected!
                         })
                     })
             })
@@ -179,24 +204,34 @@ export const ReceiptForm = (props: ReceiptForm) => {
                 return {
                     receipt_id: receiptId,
                     article_id: parseInt(articles[articleId].id),
-                    price: value.price?value.price:0,
-                    quantity: value.quantity?value.quantity:0,
+                    price: value.price,
+                    unitPrice: value.unitPrice,
+                    quantity: value.quantity,
                     id: value.id,
                     weight: value.weight?value.weight:0,
-                    weight_type: value.weight_type?value.weight_type:0
+                    weight_type: value.weight_type?value.weight_type:1
                 }
             })
 
+        let articlesByReceiptToDelete = [
+            ...articlesByReceipt
+        ]
         for (let i = 0; i < articlesOfReceipt.length; i++) {
             const articleOfReceipt = articlesOfReceipt[i]
             if (articleOfReceipt.id){
-                await createArticlesOfReceipt(articleOfReceipt)
+                await updateArticleOfReceipt(articleOfReceipt)
             }
             else{
-                await updateArticlesOfReceipt(articleOfReceipt)
+                await createArticleOfReceipt(articleOfReceipt)
             }
         }
-
+        for (let i = 0; i < articlesByReceiptToDelete.length; i++) {
+            const articleOfReceipt = articlesByReceiptToDelete[i]
+            const existingArticleByReceipt = articlesOfReceipt.filter(currentArticleByReceipt => currentArticleByReceipt.id == articleOfReceipt.id)
+                if(existingArticleByReceipt.length < 1){
+                    deleteArticleOfReceipt(articleOfReceipt.receipt_id, articleOfReceipt.id!)
+                }
+        }
     }
 
     const createArticle = async (articleName: string) => {
@@ -205,15 +240,23 @@ export const ReceiptForm = (props: ReceiptForm) => {
             })
     }
 
-    const createArticlesOfReceipt = async (articleOfReceipt: ArticleOfReceipt) => {
+    const createArticleOfReceipt = async (articleOfReceipt: ArticleOfReceipt) => {
         return await axios.post(`http://localhost:4001/api/v1/receipts/${articleOfReceipt.receipt_id}/articles`, articleOfReceipt)
     }
-    const updateArticlesOfReceipt = async (articleOfReceipt: ArticleOfReceipt) => {
-        return await axios.put(`http://localhost:4001/api/v1/receipts/${articleOfReceipt.receipt_id}/articles/${articleOfReceipt.article_id}`, articleOfReceipt)
+    const updateArticleOfReceipt = async (articleOfReceipt: ArticleOfReceipt) => {
+        return await axios.put(`http://localhost:4001/api/v1/receipts/${articleOfReceipt.receipt_id}/articles/${articleOfReceipt.id}`, articleOfReceipt)
+    }
+    const deleteArticleOfReceipt = async (receiptId: number, articleOfReceiptId: number) => {
+        return await axios.delete(`http://localhost:4001/api/v1/receipts/${receiptId}/articles/${articleOfReceiptId}`)
     }
 
     const handleSubmit = ( e : FormEvent ) => {
         e.preventDefault()
+        if(!selectedShops || selectedShops.length < 1){
+            setInvalidShop(true)
+            return
+        }
+        setInvalidShop(false)
         console.log(selectedShops[0].id)
         if (selectedShops[0]  && selectedShops[0].id.toString().includes("new-")){
             axios
@@ -223,6 +266,7 @@ export const ReceiptForm = (props: ReceiptForm) => {
                 .then(res => {
                     console.log(res.data)
                     handleReceiptSave(res.data.id);
+                    props.addShop(selectedShops[0])
                 })
                 .catch(error => console.error(error))
         }
@@ -245,7 +289,11 @@ export const ReceiptForm = (props: ReceiptForm) => {
         setArticlesByReceiptRows([
             ...articlesByReceiptRows,
             {
-                edit: true
+                edit: true,
+                price: 0,
+                unitPrice: 0,
+                quantity: 1,
+                invalidArticle: false
             }
         ])
     }
@@ -257,6 +305,16 @@ export const ReceiptForm = (props: ReceiptForm) => {
             edit: false
         }
         setArticlesByReceiptRows(currentArticleList)
+        if(articles.filter(article => article.name == articleOfReceiptRow.articleName!).length < 1){
+            const currentArticle: ItemWithName = {
+                id: articleOfReceiptRow.article_id!,
+                name: articleOfReceiptRow.articleName!
+            }
+            setArticles([
+                ...articles,
+                currentArticle
+            ])
+        }
     }
 
     const handleArticleEdit = (rowIndex: number) => {
@@ -290,6 +348,15 @@ export const ReceiptForm = (props: ReceiptForm) => {
         ])
     }
 
+    const checkShop = (itemWithNames: ItemWithName[]) => {
+        if(!itemWithNames || itemWithNames.length < 1){
+            setInvalidShop(true)
+            return
+        }
+        setInvalidShop(false)
+        setSelectedShops(itemWithNames)
+    }
+
     return(
         <div>
             <Form>
@@ -318,8 +385,12 @@ export const ReceiptForm = (props: ReceiptForm) => {
                                 selected={selectedShops}
                                 minLength={2}
                                 clearButton
+                                isInvalid={invalidShop}
                             />
                         </InputGroup>
+                        <Form.Control.Feedback type="invalid">
+                            Please choose a shop from the selection
+                        </Form.Control.Feedback>
                     </Form.Group>
                 </Form.Row>
                 <ArticlesByReceiptList
@@ -331,29 +402,10 @@ export const ReceiptForm = (props: ReceiptForm) => {
                     handleSave={saveArticleRow}
                     handleCancel={handleArticleCancel}
                     articles={articles}
+                    weightTypes={weightTypes}
+                    receiptSum={sum}
+                    handleReceiptSumSave={setSum}
                     />
-                <Form.Row>
-                    <Form.Group as={Col} md="4" controlId="formGridSum">
-                        <Form.Label>Sum</Form.Label>
-                        <InputGroup hasValidation>
-                            <Form.Control
-                                as={NumberFormat}
-                                isInvalid={ !!errors.sum }
-                                value={sum}
-                                displayType={'input'}
-                                thousandSeparator={true}
-                                prefix={'€'}
-                                onValueChange={(values:any) => {
-                                    const {value} = values;
-                                    setSum(value)
-                                }}
-                            />
-                            <Form.Control.Feedback type='invalid' tooltip>
-                                { errors.date }
-                            </Form.Control.Feedback>
-                        </InputGroup>
-                    </Form.Group>
-                </Form.Row>
                 <Button variant="warning" onClick={props.handleBack}>
                     <FontAwesomeIcon icon="arrow-alt-circle-left" size="3x" />
                 </Button>

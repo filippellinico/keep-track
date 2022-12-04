@@ -16,7 +16,7 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-import React from "react";
+import React, {useEffect, useState} from "react";
 // reactstrap components
 import {
     Card,
@@ -27,8 +27,29 @@ import {
     Row,
     Col,
 } from "reactstrap";
+import axios, { AxiosResponse } from "axios";
+import NumberFormat from "react-number-format";
+
+interface Statistics{
+    totalPrices: number
+    avgPrices: number
+    countReceipts: number
+    avgCountArticles: number
+}
 
 function Dashboard() {
+    const [statistics, setStatistics] = useState({} as Statistics)
+
+    useEffect(() => {
+        fetchList()
+    }, [])
+
+    const fetchList = async () => {
+        const response: AxiosResponse<Statistics> = await axios.get('http://localhost:4001/api/v1/statistics')
+        console.log(`fetchedStatistics ${JSON.stringify(response.data)}`)
+        setStatistics(response.data)
+    }
+
     return (
         <>
             <div className="content">
@@ -44,8 +65,8 @@ function Dashboard() {
                                     </Col>
                                     <Col md="8" xs="7">
                                         <div className="numbers">
-                                            <p className="card-category">Capacity</p>
-                                            <CardTitle tag="p">150GB</CardTitle>
+                                            <p className="card-category">Receipts created</p>
+                                            <CardTitle tag="p">{statistics.countReceipts}</CardTitle>
                                             <p />
                                         </div>
                                     </Col>
@@ -54,7 +75,7 @@ function Dashboard() {
                             <CardFooter>
                                 <hr />
                                 <div className="stats">
-                                    <i className="fas fa-sync-alt" /> Update Now
+                                    <i className="fas fa-sync-alt" /> Updated Now
                                 </div>
                             </CardFooter>
                         </Card>
@@ -70,8 +91,20 @@ function Dashboard() {
                                     </Col>
                                     <Col md="8" xs="7">
                                         <div className="numbers">
-                                            <p className="card-category">Revenue</p>
-                                            <CardTitle tag="p">$ 1,345</CardTitle>
+                                            <p className="card-category">Total expenses</p>
+                                            <CardTitle tag="p">
+                                                <NumberFormat
+                                                    value={statistics.totalPrices}
+                                                    displayType={'text'}
+                                                    isNumericString
+                                                    allowNegative={false}
+                                                    decimalSeparator={","}
+                                                    thousandSeparator={"."}
+                                                    decimalScale={2}
+                                                    fixedDecimalScale={true}
+                                                    suffix={' €'}
+                                                />
+                                            </CardTitle>
                                             <p />
                                         </div>
                                     </Col>
@@ -80,7 +113,7 @@ function Dashboard() {
                             <CardFooter>
                                 <hr />
                                 <div className="stats">
-                                    <i className="far fa-calendar" /> Last day
+                                    <i className="fas fa-sync-alt" /> Updated Now
                                 </div>
                             </CardFooter>
                         </Card>
@@ -96,8 +129,20 @@ function Dashboard() {
                                     </Col>
                                     <Col md="8" xs="7">
                                         <div className="numbers">
-                                            <p className="card-category">Errors</p>
-                                            <CardTitle tag="p">23</CardTitle>
+                                            <p className="card-category">Average price</p>
+                                            <CardTitle tag="p">
+                                                <NumberFormat
+                                                    value={statistics.avgPrices}
+                                                    displayType={'text'}
+                                                    isNumericString
+                                                    allowNegative={false}
+                                                    decimalSeparator={","}
+                                                    thousandSeparator={"."}
+                                                    decimalScale={2}
+                                                    fixedDecimalScale={true}
+                                                    suffix={' €'}
+                                                />
+                                            </CardTitle>
                                             <p />
                                         </div>
                                     </Col>
@@ -106,7 +151,7 @@ function Dashboard() {
                             <CardFooter>
                                 <hr />
                                 <div className="stats">
-                                    <i className="far fa-clock" /> In the last hour
+                                    <i className="fas fa-sync-alt" /> Updated Now
                                 </div>
                             </CardFooter>
                         </Card>
@@ -122,8 +167,8 @@ function Dashboard() {
                                     </Col>
                                     <Col md="8" xs="7">
                                         <div className="numbers">
-                                            <p className="card-category">Followers</p>
-                                            <CardTitle tag="p">+45K</CardTitle>
+                                            <p className="card-category">Average articles count</p>
+                                            <CardTitle tag="p">{statistics.avgCountArticles}</CardTitle>
                                             <p />
                                         </div>
                                     </Col>
@@ -132,69 +177,7 @@ function Dashboard() {
                             <CardFooter>
                                 <hr />
                                 <div className="stats">
-                                    <i className="fas fa-sync-alt" /> Update now
-                                </div>
-                            </CardFooter>
-                        </Card>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col md="12">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle tag="h5">Users Behavior</CardTitle>
-                                <p className="card-category">24 Hours performance</p>
-                            </CardHeader>
-                            <CardBody>
-                            </CardBody>
-                            <CardFooter>
-                                <hr />
-                                <div className="stats">
-                                    <i className="fa fa-history" /> Updated 3 minutes ago
-                                </div>
-                            </CardFooter>
-                        </Card>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col md="4">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle tag="h5">Email Statistics</CardTitle>
-                                <p className="card-category">Last Campaign Performance</p>
-                            </CardHeader>
-                            <CardBody style={{ height: "266px" }}>
-                            </CardBody>
-                            <CardFooter>
-                                <div className="legend">
-                                    <i className="fa fa-circle text-primary" /> Opened{" "}
-                                    <i className="fa fa-circle text-warning" /> Read{" "}
-                                    <i className="fa fa-circle text-danger" /> Deleted{" "}
-                                    <i className="fa fa-circle text-gray" /> Unopened
-                                </div>
-                                <hr />
-                                <div className="stats">
-                                    <i className="fa fa-calendar" /> Number of emails sent
-                                </div>
-                            </CardFooter>
-                        </Card>
-                    </Col>
-                    <Col md="8">
-                        <Card className="card-chart">
-                            <CardHeader>
-                                <CardTitle tag="h5">NASDAQ: AAPL</CardTitle>
-                                <p className="card-category">Line Chart with Points</p>
-                            </CardHeader>
-                            <CardBody>
-                            </CardBody>
-                            <CardFooter>
-                                <div className="chart-legend">
-                                    <i className="fa fa-circle text-info" /> Tesla Model S{" "}
-                                    <i className="fa fa-circle text-warning" /> BMW 5 Series
-                                </div>
-                                <hr />
-                                <div className="card-stats">
-                                    <i className="fa fa-check" /> Data information certified
+                                    <i className="fas fa-sync-alt" /> Updated now
                                 </div>
                             </CardFooter>
                         </Card>

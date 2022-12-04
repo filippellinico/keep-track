@@ -10,9 +10,10 @@
 
 # production
 /build
+/dist
 
 # db
-/server/keep-track.db
+keep-track.db
 
 # misc
 .DS_Store

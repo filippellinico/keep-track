@@ -41,8 +41,13 @@ export const ReceiptsList = (props: ReceiptList) => {
             <NumberFormat
                 value={row.sum}
                 displayType={'text'}
-                thousandSeparator={true}
-                prefix={'€'}
+                isNumericString
+                allowNegative={false}
+                decimalSeparator={","}
+                thousandSeparator={"."}
+                decimalScale={2}
+                fixedDecimalScale={true}
+                suffix={' €'}
             />
         )
     }, {

@@ -7,7 +7,8 @@ exports.getAll = async (req, res) => {
     // Get all items from database
     knex
         .select('*') // select all records
-        .from(table) // from corresponding table
+        .from(table)
+        .where('receipt_id', req.params.receipt_id) // from corresponding table
         .then(userData => {
             // Send items extracted from database in response
             res.json(userData)
@@ -31,6 +32,7 @@ exports.create = async (req, res) => {
             // Send created item in response
             res.status(201)
                 .json({
+                    id: id,
                     ...data
                 })
         })
@@ -44,7 +46,7 @@ exports.create = async (req, res) => {
 exports.get = async (req, res) => {
     // Get specific item from database
     knex(table)
-        .where('article_id', req.params.article_id)
+        .where('id', req.params.article_receipt_id)
         .where('receipt_id', req.params.receipt_id)
         .then(userData => {
             if (!userData){
@@ -67,7 +69,7 @@ exports.update = async (req, res) => {
         .update({
             ...req.body
         })
-        .where('article_id', req.params.article_id)
+        .where('id', req.params.article_receipt_id)
         .where('receipt_id', req.params.receipt_id)
         .then(() => {
             // Send a success message in response
@@ -83,12 +85,36 @@ exports.update = async (req, res) => {
 exports.delete = async (req, res) => {
     // Find specific item in the database and remove it
     knex(table)
-        .where('article_id', req.params.article_id)
+        .where('id', req.params.article_receipt_id)
         .where('receipt_id', req.params.receipt_id)
         .del() // delete the record
         .then(() => {
             // Send a success message in response
             res.sendStatus(204)
+        })
+        .catch(err => {
+            // Send a error message in response
+            res.status(500).json({ message: err })
+        })
+}
+
+exports.deleteReceipt = async (req, res) => {
+    // Find specific item in the database and remove it
+    knex(table)
+        .where('receipt_id', req.params.id)
+        .del() // delete the records
+        .then(() => {
+            knex('receipts')
+                .where('id', req.params.id)
+                .del() // delete the record
+                .then(() => {
+                    // Send a success message in response
+                    res.sendStatus(204)
+                })
+                .catch(err => {
+                    // Send a error message in response
+                    res.status(500).json({ message: err })
+                })
         })
         .catch(err => {
             // Send a error message in response
