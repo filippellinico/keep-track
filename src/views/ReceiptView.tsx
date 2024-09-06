@@ -101,6 +101,7 @@ function ReceiptView() {
             })
         }
         setReceipts(receiptsRefreshed)
+        fetchList()
     }
 
     const handleEdit = (id: number) => {

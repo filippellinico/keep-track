@@ -24,6 +24,7 @@ interface ArticlesByReceiptListProps{
     handleSave: (articleOfReceiptRowEdit: ArticlesByReceiptRow, rowIndex: number) => void;
     handleCancel: (rowIndex: number) => void;
     articles: ItemWithName[]
+    vehicles: ItemWithName[]
     weightTypes: ItemWithName[]
     receiptSum: number
     handleReceiptSumSave: (sum: number) => void;
@@ -68,6 +69,7 @@ export const ArticlesByReceiptList = (props: ArticlesByReceiptListProps) => {
                                     handleSave={props.handleSave}
                                     handleCancel={props.handleCancel}
                                     articles={props.articles}
+                                    vehicles={props.vehicles}
                                     weightTypes={props.weightTypes}
                                     rowIndex={idx}
                                     key={idx}

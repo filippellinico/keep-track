@@ -69,6 +69,19 @@ knex.schema.hasTable('articles').then(function(exists) {
     }
 });
 
+knex.schema.hasTable('vehicles').then(function(exists) {
+    if (!exists) {
+        return knex.schema.createTable('vehicles', function (table) {
+            table.increments();
+            table.string('name');
+        })
+            .then(() => {
+                // Log success message
+                console.log('Table \'vehicles\' created')
+            })
+    }
+});
+
 knex.schema.hasTable('shops').then(function(exists) {
     if (!exists) {
         return knex.schema.createTable('shops', function (table) {
@@ -129,6 +142,7 @@ knex.schema.hasTable('articles_by_receipts').then(function(exists) {
             table.increments();
             table.integer('article_id');
             table.integer('receipt_id');
+            table.integer('vehicle_id');
             table.decimal('price');
             table.decimal('unitPrice');
             table.integer('quantity');
@@ -136,7 +150,9 @@ knex.schema.hasTable('articles_by_receipts').then(function(exists) {
             table.integer('weight_type');
             table.foreign('article_id').references('id').inTable('articles');
             table.foreign('receipt_id').references('id').inTable('receipts');
+            table.foreign('vehicle_id').references('id').inTable('vehicles');
             table.foreign('weight_type').references('id').inTable('weight_types');
+            table.integer('distance');
         })
             .then(() => {
                 // Log success message

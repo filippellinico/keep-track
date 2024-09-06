@@ -8,15 +8,19 @@ export interface ArticlesByReceiptRow{
     id?: number
     article_id?: string,
     receipt_id?: number,
+    vehicle_id?: string,
     price: number,
     unitPrice: number,
     quantity: number,
     weight?: number,
     weight_type?: number
     articleName?: string
+    vehicleName?: string
+    distance?: number,
     weightTypeName?: string
     edit: boolean
-    invalidArticle: boolean
+    invalidArticle: boolean,
+    invalidVehicle: boolean
 }
 
 interface ArticlesByReceiptRowProps {
@@ -29,19 +33,25 @@ interface ArticlesByReceiptRowProps {
 export const ArticlesByReceiptRow = (props: ArticlesByReceiptRowProps) => (
     <tr>
         <td style={{ width: '250px' }}>
-            <span className={'cellText'}>{props.articlesByReceiptRow.articleName}</span>
+            <p><span className={'cellText'}>{props.articlesByReceiptRow.articleName}</span></p>
+            <p><span className={'cellText'}>{props.articlesByReceiptRow.vehicleName ? props.articlesByReceiptRow.vehicleName : ""}</span></p>
         </td>
         <td style={{ width: '215px' }}>
-            <span style={{ paddingRight: '23px' }} className={'cellText'}>
+            <p><span style={{ paddingRight: '23px' }} className={'cellText'}>
                 {props.articlesByReceiptRow.weight && props.articlesByReceiptRow.weight > 0 ? (
                     <span>{props.articlesByReceiptRow.weight} {props.articlesByReceiptRow.weightTypeName}</span>
                 ) : ""}
-            </span>
+            </span></p>
+            <p><span style={{ paddingRight: '23px' }} className={'cellText'}>
+                {props.articlesByReceiptRow.distance && props.articlesByReceiptRow.distance > 0 ? (
+                    <span>{props.articlesByReceiptRow.distance} Km</span>
+                ) : ""}
+            </span></p>
         </td>
-        <td style={{ width: '85px', textAlign: 'right' }}>
+        <td style={{ width: '85px', textAlign: 'right', verticalAlign:"top" }}>
             <span className={'cellText'}>{props.articlesByReceiptRow.quantity} X </span>
         </td>
-        <td style={{ width: '132px' }}>
+        <td style={{ width: '132px', verticalAlign:"top" }}>
             <NumberFormat
                 value={props.articlesByReceiptRow.unitPrice}
                 displayType={'text'}
@@ -55,7 +65,7 @@ export const ArticlesByReceiptRow = (props: ArticlesByReceiptRowProps) => (
                 className={'cellText'}
             />
         </td>
-        <td style={{ width: '132px', textAlign: 'right', paddingRight: '12px' }}>
+        <td style={{ width: '132px', textAlign: 'right', paddingRight: '12px', verticalAlign:"top" }}>
             <NumberFormat
                 value={props.articlesByReceiptRow.price}
                 displayType={'text'}

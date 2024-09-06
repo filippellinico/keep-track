@@ -47,5 +47,12 @@ const routes: RouteProps[] = [
         component: ReceiptView,
         layout: "/admin",
     },
+    {
+        path: "/icons",
+        name: "Icons Test",
+        icon: "nc-icon nc-diamond",
+        component: Icons,
+        layout: "/admin",
+    },
 ];
 export default routes;

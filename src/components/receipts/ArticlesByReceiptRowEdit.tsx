@@ -6,7 +6,7 @@ import {
     library
 } from '@fortawesome/fontawesome-svg-core'
 import React, {useState} from "react";
-import {Typeahead} from "react-bootstrap-typeahead";
+import {Typeahead, ClearButton} from "react-bootstrap-typeahead";
 import {ItemWithName} from "./ReceiptForm";
 import {ArticlesByReceiptRow} from "./ArticlesByReceiptRow";
 
@@ -17,6 +17,7 @@ interface ArticlesByReceiptRowEditProps {
     handleSave: (articleOfReceiptRowEdit: ArticlesByReceiptRow, rowIndex: number) => void;
     handleCancel: (rowIndex: number) => void;
     articles: ItemWithName[]
+    vehicles: ItemWithName[]
     weightTypes: ItemWithName[]
     rowIndex: number
 }
@@ -24,7 +25,7 @@ interface ArticlesByReceiptRowEditProps {
 export const ArticlesByReceiptRowEdit = (props: ArticlesByReceiptRowEditProps) => {
     const {
         articleOfReceiptRowEdit: {
-            article_id, articleName
+            article_id, articleName, vehicle_id, vehicleName
         }
     } = props
     let currentArticleSelection: ItemWithName[] = []
@@ -34,7 +35,15 @@ export const ArticlesByReceiptRowEdit = (props: ArticlesByReceiptRowEditProps) =
             name: articleName
         }]
     }
+    let currentVehicleSelection: ItemWithName[] = []
+    if (vehicle_id && vehicleName){
+        currentVehicleSelection = [{
+            id: vehicle_id.toString(),
+            name: vehicleName
+        }]
+    }
     const [selectedArticles, setSelectedArticles] = useState<ItemWithName[]>(currentArticleSelection);
+    const [selectedVehicles, setSelectedVehicles] = useState<ItemWithName[]>(currentVehicleSelection);
     const [currentArticleOfReceiptRowEdit, setCurrentArticleOfReceiptRowEdit] = useState<ArticlesByReceiptRow>(props.articleOfReceiptRowEdit);
 
     const setField = (fieldName:string, fieldValue:string, conversion:(fieldValue:string)=>number) => {
@@ -82,6 +91,8 @@ export const ArticlesByReceiptRowEdit = (props: ArticlesByReceiptRowEditProps) =
             ...currentArticleOfReceiptRowEdit,
             article_id: selectedArticles[0].id,
             articleName: selectedArticles[0].name,
+            vehicle_id: selectedVehicles.length > 0? selectedVehicles[0].id: undefined,
+            vehicleName: selectedVehicles.length > 0? selectedVehicles[0].name: undefined,
             weight_type: weightType,
             weightTypeName: weigthTypeName,
             invalidArticle: false
@@ -104,11 +115,25 @@ export const ArticlesByReceiptRowEdit = (props: ArticlesByReceiptRowEditProps) =
         })
         setSelectedArticles(itemWithNames)
     }
+    const checkVehicle = (itemWithNames: ItemWithName[]) => {
+        if(!itemWithNames || itemWithNames.length < 1){
+            setCurrentArticleOfReceiptRowEdit({
+                ...currentArticleOfReceiptRowEdit,
+                invalidVehicle: true
+            })
+            return
+        }
+        setCurrentArticleOfReceiptRowEdit({
+            ...currentArticleOfReceiptRowEdit,
+            invalidVehicle: false
+        })
+        setSelectedVehicles(itemWithNames)
+    }
 
     return (
         <tr>
             <td style={{ width: '250px' }}>
-                <Form.Row>
+                <p><Form.Row>
                     <Form.Group controlId={`formGridArticle-${props.rowIndex}`}>
                         <InputGroup hasValidation>
                             <Typeahead<ItemWithName>
@@ -122,17 +147,55 @@ export const ArticlesByReceiptRowEdit = (props: ArticlesByReceiptRowEditProps) =
                                 minLength={2}
                                 clearButton
                                 className={'articleName'}
-                                isInvalid={currentArticleOfReceiptRowEdit.invalidArticle}
-                            />
+                                isInvalid={currentArticleOfReceiptRowEdit.invalidArticle}>
+                                {({ onClear, selected }: {onClear: ()=> {}, selected: ItemWithName[]}) => (
+                                    <div className="rbt-aux">
+                                        {!!selected.length && <ClearButton onClick={()=> {
+                                            setSelectedArticles([])
+                                            onClear()
+                                        }} />}
+                                    </div>
+                                )}
+                            </Typeahead>
                             <Form.Control.Feedback type="invalid">
                                 Please choose an article from the selection
                             </Form.Control.Feedback>
                         </InputGroup>
                     </Form.Group>
-                </Form.Row>
+                </Form.Row></p>
+                <p><Form.Row>
+                    <Form.Group controlId={`formGridVehicle-${props.rowIndex}`}>
+                        <InputGroup hasValidation>
+                            <Typeahead<ItemWithName>
+                                allowNew
+                                id={`vehicle-typeahead-${props.rowIndex}`}
+                                labelKey="name"
+                                onChange={checkVehicle}
+                                options={props.vehicles}
+                                placeholder="Choose an vehicle..."
+                                selected={selectedVehicles}
+                                minLength={2}
+                                clearButton
+                                className={'vehicleName'}
+                                isInvalid={currentArticleOfReceiptRowEdit.invalidVehicle}>
+                                {({ onClear, selected }: {onClear: ()=> {}, selected: ItemWithName[]}) => (
+                                    <div className="rbt-aux">
+                                        {!!selected.length && <ClearButton onClick={()=> {
+                                            setSelectedVehicles([])
+                                            onClear()
+                                        }} />}
+                                    </div>
+                                )}
+                            </Typeahead>
+                            <Form.Control.Feedback type="invalid">
+                                Please choose an vehicle from the selection
+                            </Form.Control.Feedback>
+                        </InputGroup>
+                    </Form.Group>
+                </Form.Row></p>
             </td>
             <td style={{ width: '190px' }}>
-                <Form.Row>
+                <p><Form.Row>
                     <Form.Group controlId={`formGridWeight-${props.rowIndex}`}>
                         <InputGroup hasValidation>
                             <Form.Control
@@ -160,9 +223,26 @@ export const ArticlesByReceiptRowEdit = (props: ArticlesByReceiptRowEditProps) =
                             </Form.Control>
                         </InputGroup>
                     </Form.Group>
-                </Form.Row>
+                </Form.Row></p>
+                <p>
+                    <Form.Row>
+                        <Form.Group controlId={`formGridWeight-${props.rowIndex}`}>
+                            <InputGroup hasValidation>
+                                <Form.Control
+                                    type='number'
+                                    onChange={ e => setField('distance', e.target.value, parseFloat) }
+                                    placeholder=""
+                                    value={currentArticleOfReceiptRowEdit.distance}
+                                    className={''}
+                                    style={{width:"100px"}}
+                                />
+                                <InputGroup.Text id="kmUnity">Km</InputGroup.Text>
+                            </InputGroup>
+                        </Form.Group>
+                    </Form.Row>
+                </p>
             </td>
-            <td style={{ width: '100px' }}>
+            <td style={{ width: '100px', verticalAlign:"top" }}>
                 <Form.Row>
                     <Form.Group controlId={`formGridQuantity-${props.rowIndex}`}>
                         <InputGroup hasValidation>
@@ -177,7 +257,7 @@ export const ArticlesByReceiptRowEdit = (props: ArticlesByReceiptRowEditProps) =
                     </Form.Group>
                 </Form.Row>
             </td>
-            <td style={{ width: '132px' }}>
+            <td style={{ width: '132px', verticalAlign:"top" }}>
                 <Form.Row>
                     <Form.Group controlId={`formGridUnitPrice-${props.rowIndex}`}>
                         <InputGroup hasValidation>
@@ -203,7 +283,7 @@ export const ArticlesByReceiptRowEdit = (props: ArticlesByReceiptRowEditProps) =
                     </Form.Group>
                 </Form.Row>
             </td>
-            <td style={{ width: '132px', textAlign: 'right', paddingRight: '12px' }}>
+            <td style={{ width: '132px', textAlign: 'right', paddingRight: '12px', verticalAlign:"top" }}>
                 <NumberFormat
                     value={currentArticleOfReceiptRowEdit.price}
                     displayType={'text'}
@@ -217,7 +297,7 @@ export const ArticlesByReceiptRowEdit = (props: ArticlesByReceiptRowEditProps) =
                     className={'cellText'}
                 />
             </td>
-            <td>
+            <td style={{verticalAlign:"top"}}>
                 <Button variant="warning" onClick={handleBack}>
                     <FontAwesomeIcon icon="arrow-alt-circle-left" size="lg" />
                 </Button>{' '}
